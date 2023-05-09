@@ -19,8 +19,21 @@ const database = require("./database");
 app.get("/api/movies", movieHandlers.getMovies);
 app.get("/api/movies/:id", movieHandlers.getMovieById);
 app.get("/api/users", (req, res) => {
+  let sql = "SELECT * from users ";
+  let sqlValues = [];
+
+  if (req.query.language != null) {
+    sql += "WHERE language = ? ";
+    sqlValues.push(req.query.language);
+  }
+
+  if (req.query.city != null) {
+    sql += "WHERE city = ?";
+    sqlValues.push(req.query.city);
+  }
+
   database
-    .query("SELECT * from users")
+    .query(sql, sqlValues)
     .then(([users]) => {
       res.json(users);
     })
