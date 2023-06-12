@@ -29,6 +29,7 @@ const getUsers = (req, res) => {
       where.map(({ value }) => value)
     )
     .then(([users]) => {
+      users.map((user) => delete user.hashedPassword);
       res.json(users);
     })
     .catch((err) => {
@@ -44,6 +45,7 @@ const getUserById = (req, res) => {
     .query("select * from users where id = ?", [id])
     .then(([users]) => {
       if (users[0] != null) {
+        delete users[0].hashedPassword;
         res.json(users[0]);
       } else {
         res.status(404).send("Not Found");
@@ -75,12 +77,13 @@ const postUser = (req, res) => {
 
 const updateUser = (req, res) => {
   const id = parseInt(req.params.id);
-  const { firstname, lastname, email, city, language } = req.body;
+  const { firstname, lastname, email, city, language, hashedPassword } =
+    req.body;
 
   database
     .query(
-      "update users set firstname = ?, lastname = ?, email = ?, city = ?, language = ? where id = ?",
-      [firstname, lastname, email, city, language, id]
+      "update users set firstname = ?, lastname = ?, email = ?, city = ?, language = ?, hashedPassword = ? where id = ?",
+      [firstname, lastname, email, city, language, hashedPassword, id]
     )
     .then(([result]) => {
       if (result.affectedRows === 0) {
